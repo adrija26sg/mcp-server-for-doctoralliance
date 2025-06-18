@@ -1,0 +1,23 @@
+[project]
+name = "doctoralliance_agent"
+version = "0.1.0"
+description = "doctoralliance-agent using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "crewai[tools]>=0.130.0,<1.0.0"
+]
+
+[project.scripts]
+doctoralliance_agent = "doctoralliance_agent.main:run"
+run_crew = "doctoralliance_agent.main:run"
+train = "doctoralliance_agent.main:train"
+replay = "doctoralliance_agent.main:replay"
+test = "doctoralliance_agent.main:test"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "crew"
