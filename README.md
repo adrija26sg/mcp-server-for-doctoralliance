@@ -66,7 +66,7 @@ adrija-crewai-agent/
 
 ```bash
 git clone https://github.com/your-org/adrija-crewai-agent.git
-cd adrija-crewai-agent
+cd mcp-server-for-doctoralliance
 ```
 
 ### 2. Environment Variables
