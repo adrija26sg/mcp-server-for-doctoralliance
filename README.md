@@ -176,6 +176,3 @@ Visit `http://localhost:8501` in your browser.
 
 ---
 
-## License
-
-MIT © Your Name
