@@ -1,54 +1,181 @@
-# DoctorallianceAgent Crew
+# AgenticalDoctorAlliance
 
-Welcome to the DoctorallianceAgent Crew project, powered by [crewAI](https://crewai.com). This template is designed to help you set up a multi-agent AI system with ease, leveraging the powerful and flexible framework provided by crewAI. Our goal is to enable your agents to collaborate effectively on complex tasks, maximizing their collective intelligence and capabilities.
+**Healthcare-focused AI Agent Dashboard & MCP Server**
 
-## Installation
+This repository contains a Model-Context-Protocol (MCP) FastAPI server paired with a Streamlit dashboard, designed to orchestrate AI-driven healthcare workflows (appointment reminders, follow-up calls, billing updates). It integrates with:
 
-Ensure you have Python >=3.10 <3.14 installed on your system. This project uses [UV](https://docs.astral.sh/uv/) for dependency management and package handling, offering a seamless setup and execution experience.
+* **Gemini/CrewAI** for AI response generation
+* **SendGrid** (via Single Sender) for outbound email
+* **Twilio** (Test or Live) for outbound SMS
+* **Gmail API** for inbound email monitoring
+* ** WebSocket** for real-time popup notifications
 
-First, if you haven't already, install uv:
+---
 
-```bash
-pip install uv
+## Repository Structure
+
+```
+adrija-crewai-agent/
+├── .env.example       # Template for environment variables
+├── requirements.txt   # Python dependencies
+└── src/
+    └── doctoralliance_agent/
+        ├── __init__.py
+        ├── server.py         # FastAPI MCP endpoints
+        ├── streamlit_app.py  # Streamlit UI
+        ├── crew.py           # Optional CrewAI kickoff script
+        ├── persona_resolver.py
+        ├── data_fetcher.py
+        ├── summary_builder.py
+        ├── vault.py
+        ├── agents/
+        │   ├── __init__.py
+        │   ├── prompt_builder.py
+        │   └── gemini_agent.py
+        ├── delivery/
+        │   ├── __init__.py
+        │   ├── channel_selector.py
+        │   ├── email.py
+        │   ├── sms_gateway.py
+        │   ├── popup.py
+        │   └── logger.py
+        ├── escalation/
+        │   ├── __init__.py
+        │   ├── reminder_scheduler.py
+        │   └── retry_agent.py
+        └── gmail/
+            ├── __init__.py
+            ├── gmail_agent.py
+            ├── nlp_parser.py
+            └── response_handler.py
 ```
 
-Next, navigate to your project directory and install the dependencies:
+---
 
-(Optional) Lock the dependencies and install them by using the CLI command:
-```bash
-crewai install
-```
-### Customizing
+## Quickstart
 
-**Add your `OPENAI_API_KEY` into the `.env` file**
-
-- Modify `src/doctoralliance_agent/config/agents.yaml` to define your agents
-- Modify `src/doctoralliance_agent/config/tasks.yaml` to define your tasks
-- Modify `src/doctoralliance_agent/crew.py` to add your own logic, tools and specific args
-- Modify `src/doctoralliance_agent/main.py` to add custom inputs for your agents and tasks
-
-## Running the Project
-
-To kickstart your crew of AI agents and begin task execution, run this from the root folder of your project:
+### 1. Clone the repo
 
 ```bash
-$ crewai run
+git clone https://github.com/your-org/adrija-crewai-agent.git
+cd adrija-crewai-agent
 ```
 
-This command initializes the doctoralliance-agent Crew, assembling the agents and assigning them tasks as defined in your configuration.
+### 2. Environment Variables
 
-This example, unmodified, will run the create a `report.md` file with the output of a research on LLMs in the root folder.
+Copy `.env.example` to `.env` and fill in your credentials:
 
-## Understanding Your Crew
+```bash
+# Windows PowerShell
+Copy-Item .env.example .env
+# Linux/macOS
+cp .env.example .env
+```
 
-The doctoralliance-agent Crew is composed of multiple AI agents, each with unique roles, goals, and tools. These agents collaborate on a series of tasks, defined in `config/tasks.yaml`, leveraging their collective skills to achieve complex objectives. The `config/agents.yaml` file outlines the capabilities and configurations of each agent in your crew.
+Edit `.env`:
 
-## Support
+```dotenv
+FASTAPI_HOST=0.0.0.0
+FASTAPI_PORT=8000
 
-For support, questions, or feedback regarding the DoctorallianceAgent Crew or crewAI.
-- Visit our [documentation](https://docs.crewai.com)
-- Reach out to us through our [GitHub repository](https://github.com/joaomdmoura/crewai)
-- [Join our Discord](https://discord.com/invite/X4JWnZnxPb)
-- [Chat with our docs](https://chatg.pt/DWjSBZn)
+# Gemini/CrewAI
+CREWAI_API_KEY=sk-...
+CREWAI_ENDPOINT=https://api.crew.ai/v1/chat/completions
+CREWAI_MODEL=gemini-2.0-flash-001
+CREWAI_TEMPERATURE=0.7
 
-Let's create wonders together with the power and simplicity of crewAI.
+# SendGrid (Single Sender)
+SENDGRID_API_KEY=SG-...
+FROM_EMAIL=your_verified@domain.com
+
+# Twilio (for SMS testing)
+TWILIO_ACCOUNT_SID=AC...
+TWILIO_AUTH_TOKEN=...
+TWILIO_FROM_NUMBER=+15005550006
+
+# Gmail (optional)
+GMAIL_CREDENTIALS_PATH=./credentials.json
+
+# WebSocket (optional)
+WS_URL=ws://localhost:6789
+```
+
+Place your `credentials.json` (Gmail OAuth) next to `.env` if using inbound email.
+
+### 3. Install Dependencies
+
+```bash
+python -m venv venv
+# Windows
+venv\Scripts\Activate.ps1
+# macOS/Linux
+source venv/bin/activate
+
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 4. Run the MCP Server
+
+```bash
+uvicorn doctoralliance_agent.server:app \
+  --reload --host $FASTAPI_HOST --port $FASTAPI_PORT \
+  --app-dir src
+```
+
+### 5. Launch the Streamlit UI
+
+```bash
+streamlit run src/doctoralliance_agent/streamlit_app.py
+```
+
+Visit `http://localhost:8501` in your browser.
+
+---
+
+## MCP Endpoints
+
+1. **POST** `/mcp/retrieve`
+
+   * **Body**: `{ "event_type": "appointment_reminder" }`
+   * **Response**: `{ "persona": "...", "context": { ... } }`
+
+2. **POST** `/mcp/plan`
+
+   * **Body**: output of `/retrieve`
+   * **Response**: `{ "persona": "...", "summary": "..." }`
+
+3. **POST** `/mcp/generate`
+
+   * **Body**: output of `/plan`
+   * **Response**: `{ "persona": "...", "response": "..." }`
+
+4. **POST** `/mcp/respond`
+
+   * **Body**: `{ "event_type":"...", "response":"...", "context":{...} }`
+   * **Response**: delivery results JSON
+
+---
+
+## Customization
+
+* **Persona Resolver** (`persona_resolver.py`): map events to personas
+* **Vault** (`vault.py`): stubbed EHR/Billing/HHA calls
+* **Prompt Builder** (`agents/prompt_builder.py`): persona-specific instructions
+* **GeminiAgent** (`agents/gemini_agent.py`): integrates with CrewAI/Gemini
+* **Delivery Channels** (`delivery/`): email, SMS, popup
+* **Escalation** (`escalation/`): retries and reminders
+* **Gmail Listener** (`gmail/`): parse inbound replies
+
+---
+
+## Testing
+
+* Use **Invoke-RestMethod** in PowerShell for quick API tests
+* Use **test\_sms.py** and **test\_email.py** scripts for isolated channel testing
+
+---
+
+## License
+
+MIT © Your Name
