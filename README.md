@@ -87,10 +87,10 @@ FASTAPI_HOST=0.0.0.0
 FASTAPI_PORT=8000
 
 # Gemini/CrewAI
-CREWAI_API_KEY=sk-...
-CREWAI_ENDPOINT=https://api.crew.ai/v1/chat/completions
-CREWAI_MODEL=gemini-2.0-flash-001
-CREWAI_TEMPERATURE=0.7
+GEMINI_API_KEY=sk-...
+
+GEMINI_MODEL=gemini-2.0-flash-001
+
 
 # SendGrid (Single Sender)
 SENDGRID_API_KEY=SG-...
