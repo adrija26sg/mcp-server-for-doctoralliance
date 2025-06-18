@@ -11,6 +11,14 @@ This repository contains a Model-Context-Protocol (MCP) FastAPI server paired wi
 * ** WebSocket** for real-time popup notifications
 
 ---
+## Flowchart
+
+![Editor _ Mermaid Chart-2025-06-17-154257](https://github.com/user-attachments/assets/4135881c-6657-4804-8a7e-38d31efcb378)
+
+
+### Sequence Diagram
+
+![Editor _ Mermaid Chart-2025-06-16-192336](https://github.com/user-attachments/assets/97732f1e-2f27-4dd1-97a2-7b310a729f37)
 
 ## Repository Structure
 
